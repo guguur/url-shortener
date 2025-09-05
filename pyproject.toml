@@ -17,6 +17,13 @@ optional = true
 [tool.poetry.group.quality.dependencies]
 ruff = "^0.12.11"
 
+[tool.poetry.group.testing]
+optional = true
+[tool.poetry.group.testing.dependencies]
+pytest = "^8.4.2"
+pytest-env = "^1.1.5"
+coverage = "^7.10.6"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -36,4 +43,16 @@ known-first-party = ["app"]
     "PLR2004",  # Magic value used in comparison, consider replacing with a constant variable
     "PLR0913",  # Too many arguments
     "S101",  # Use of assert detected
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--verbose"
+]
+env = [
+    "INTERNAL_DB_PASSWORD=password",
+    "INTERNAL_DB_USER=admin",
+    "INTERNAL_DB=db_algo",
+    "INTERNAL_DB_PORT=5433",
+    "INTERNAL_DB_HOST=localhost",
 ]

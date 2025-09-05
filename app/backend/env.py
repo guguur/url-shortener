@@ -30,7 +30,7 @@ class AppConfig(BaseSettings):
     )
     HOST: str = "http://localhost"
     PORT: int = 8000
-    MAX_URL_LENGTH: int = 2048
+    MAX_URL_LENGTH: int = 2083
     MAX_SLUG_LENGTH: int = 6
     DEFAULT_EXPIRATION_DAYS: int = 1
     ENV: str = "dev"

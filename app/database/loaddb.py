@@ -4,7 +4,7 @@ from app.database.pg import ConnectionManager
 
 
 def load_db(connection_manager: ConnectionManager):
-    """Load the database. Initialize the database schema and load the initial data.
+    """Initialize the database schema and load the initial data.
     If the database is in development environment, load the initial data.
 
     Parameters

@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from psycopg2.extensions import cursor
-from pydantic import ValidationError
+from pydantic import HttpUrl, ValidationError
 
 from app.backend.env import APP_CONFIG
 from app.database.loaddb import load_db
@@ -72,7 +72,7 @@ def redirect_to_url(slug: str, db_cursor: DB_Cursor):
         raise HTTPException(status_code=404, detail="Invalid URL")
 
 
-@app.get("/{slug}/stats", response_model=int)
+@app.get("/stats/{slug}", response_model=int)
 def get_url_stats(slug: str, db_cursor: DB_Cursor):
     """Get the click count of the URL.
 
@@ -103,12 +103,12 @@ def get_url_stats(slug: str, db_cursor: DB_Cursor):
 
 
 @app.post("/shorten", response_model=ShortenUrlResponse)
-def shorten_url(url: str, db_cursor: DB_Cursor):
+def shorten_url(url: HttpUrl, db_cursor: DB_Cursor):
     """Shorten the URL.
 
     Parameters
     ----------
-    url_data : Url
+    url_data : HttpUrl
         The URL to shorten.
     db_cursor : DB_Cursor
         The database cursor.
