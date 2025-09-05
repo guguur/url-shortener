@@ -30,15 +30,17 @@ def load_db(connection_manager: ConnectionManager):
             ),
         )
 
-        if APP_CONFIG.ENV == Environment.DEV:
-            # insert two rows
-            cursor.execute("""
-                INSERT INTO urls (slug, original_url, created_at, expires_at, click_count)
-                VALUES ('aY2Pv8', 'https://www.google.com/', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', 0)
-                ON CONFLICT (slug) DO NOTHING
-            """)
-            cursor.execute("""
-                INSERT INTO urls (slug, original_url, created_at, expires_at, click_count)
-                VALUES ('Lt1fov', 'https://www.youtube.com/', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', 0)
-                ON CONFLICT (slug) DO NOTHING
-            """)
+        if APP_CONFIG.ENV == Environment.DEV.value:
+            values = [
+                ("aY2Pv8", "https://www.google.com/"),
+                ("Lt1fov", "https://www.youtube.com/"),
+            ]
+            for slug, url in values:
+                cursor.execute(
+                    """
+                    INSERT INTO urls (slug, original_url)
+                    VALUES (%s, %s)
+                    ON CONFLICT (slug) DO NOTHING
+                    """,
+                    (slug, url),
+                )
