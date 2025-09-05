@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "url-shortener"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.11.7"
+pydantic-settings = "^2.10.1"
+psycopg2 = "^2.9.10"
+fastapi = {extras = ["standard"], version = "^0.116.1"}
+
+[tool.poetry.group.quality]
+optional = true
+[tool.poetry.group.quality.dependencies]
+ruff = "^0.12.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "C", "B", "PL", "I", "W", "S"]
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = [
+    "PLR2004",  # Magic value used in comparison, consider replacing with a constant variable
+    "PLR0913",  # Too many arguments
+    "S101",  # Use of assert detected
+]
