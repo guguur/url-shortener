@@ -27,7 +27,7 @@ class Url(BaseModel):
         our_parsed = urlparse(APP_CONFIG.HOST)
         our_domain = our_parsed.netloc.lower()
 
-        if input_domain.startswith(our_domain):
+        if input_domain == our_domain:
             raise ValueError("Cannot shorten URLs from your own domain")
 
         return v
