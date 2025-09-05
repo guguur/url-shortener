@@ -21,8 +21,7 @@ def load_db(connection_manager: ConnectionManager):
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '%s day',
                 click_count INTEGER NOT NULL DEFAULT 0
-            );
-            CREATE INDEX IF NOT EXISTS idx_urls_slug ON urls (slug);
+            )
         """,
             (
                 APP_CONFIG.MAX_SLUG_LENGTH,
@@ -30,7 +29,6 @@ def load_db(connection_manager: ConnectionManager):
                 APP_CONFIG.DEFAULT_EXPIRATION_DAYS,
             ),
         )
-        # check if primary = index
 
         if APP_CONFIG.ENV == Environment.DEV:
             # insert two rows
