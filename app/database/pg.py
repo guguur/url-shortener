@@ -1,47 +1,92 @@
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, Optional
 
 from psycopg2.extensions import connection, cursor
 from psycopg2.pool import SimpleConnectionPool
 
-from app.backend.env import DatabaseConfig
+from app.backend.env import DB_CONFIG
 
 
 class ConnectionManager:
     def __init__(self):
-        self.connection_pool: SimpleConnectionPool = None
+        self.connection_pool: Optional[SimpleConnectionPool] = None
 
     def init_pool(self):
+        """Initialize the connection pool with proper error handling."""
         if self.connection_pool:
             return
-        self.connection_pool = SimpleConnectionPool(
-            host=DatabaseConfig.HOST,
-            port=DatabaseConfig.PORT,
-            user=DatabaseConfig.USER,
-            password=DatabaseConfig.PASSWORD,
-            database=DatabaseConfig.NAME,
-            minconn=DatabaseConfig.POOL_MIN_CONNECTIONS,
-            maxconn=DatabaseConfig.POOL_MAX_CONNECTIONS,
-            timeout=DatabaseConfig.POOL_TIMEOUT,
-            reconnect=DatabaseConfig.POOL_RECONNECT,
-        )
+
+        try:
+            self.connection_pool = SimpleConnectionPool(
+                host=DB_CONFIG.HOST,
+                port=DB_CONFIG.PORT,
+                user=DB_CONFIG.USER,
+                password=DB_CONFIG.PASSWORD.get_secret_value(),
+                database=DB_CONFIG.NAME,
+                minconn=DB_CONFIG.POOL_MIN_CONNECTIONS,
+                maxconn=DB_CONFIG.POOL_MAX_CONNECTIONS,
+            )
+        except Exception as e:
+            raise e
 
     def close_pool(self):
+        """Close the connection pool safely."""
         if self.connection_pool:
-            self.connection_pool.closeall()
-            self.connection_pool = None
+            try:
+                self.connection_pool.closeall()
+                self.connection_pool = None
+            except Exception as e:
+                raise e
 
     @contextmanager
     def get_connection(self) -> Generator[connection, None, None]:
+        """Get a connection from the pool with error handling."""
+        if not self.connection_pool:
+            raise Exception(
+                "Connection pool not initialized. Call init_pool() first."
+            )
+
+        conn = None
         try:
             conn = self.connection_pool.getconn()
             yield conn
+        except Exception as e:
+            raise e
         finally:
-            self.connection_pool.putconn(conn)
+            if conn:
+                try:
+                    self.connection_pool.putconn(conn)
+                except Exception as e:
+                    raise e
 
-    def get_cursor(self) -> cursor:
+    @contextmanager
+    def get_cursor(self) -> Generator[cursor, None, None]:
+        """Get a cursor with proper transaction management."""
         with self.get_connection() as conn:
-            return conn.cursor()
+            cursor_obj = conn.cursor()
+            try:
+                yield cursor_obj
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                raise e
+            finally:
+                cursor_obj.close()
 
 
+# Global instance
 connection_manager = ConnectionManager()
+
+
+# FastAPI dependency function
+def get_db_cursor() -> Generator[cursor, None, None]:
+    """
+    Get a database cursor.
+
+    Returns
+    -------
+    Generator[cursor, None, None]
+        The database cursor.
+    """
+    with connection_manager.get_cursor() as cursor_obj:
+        yield cursor_obj

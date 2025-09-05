@@ -19,8 +19,6 @@ class DatabaseConfig(BaseSettings):
     # Connection pool settings
     POOL_MIN_CONNECTIONS: int = 1
     POOL_MAX_CONNECTIONS: int = 10
-    POOL_TIMEOUT: int = 30  # seconds
-    POOL_RECONNECT: bool = True  # Auto-reconnect on connection loss
 
 
 class AppConfig(BaseSettings):
@@ -32,6 +30,10 @@ class AppConfig(BaseSettings):
     )
     HOST: str = "http://localhost"
     PORT: int = 8000
+    MAX_URL_LENGTH: int = 2048
+    MAX_SLUG_LENGTH: int = 6
+    DEFAULT_EXPIRATION_DAYS: int = 1
+    ENV: str = "dev"
 
 
 DB_CONFIG = DatabaseConfig()
