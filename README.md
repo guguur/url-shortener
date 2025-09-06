@@ -18,16 +18,17 @@ A simple URL shortener service built with **FastAPI** and **PostgreSQL**.
 
    The following environment variables are used for the internal database:
 
-   - `INTERNAL_DB_PASSWORD`
-   - `INTERNAL_DB_USER`
-   - `INTERNAL_DB`
-   - `INTERNAL_DB_PORT`
-   - `INTERNAL_DB_HOST`
-   - `DB_STORAGE`: the path where to store the database files
-   - `APP_STORAGE`: the path to the project directory (e.g: /path/to/url-shortener)
+   - `DB_PASSWORD`
+   - `DB_USER`
+   - `DB_NAME`
+   - `DB_PORT`
+   - `DB_HOST`
+   - `DB_STORAGE`: the path where to store the database files (e.g: `/path/to/url-shortener/tmp/db`)
+   - `APP_STORAGE`: the path to the project directory (e.g: `/path/to/url-shortener`)
    - `PROJECT_NAME`: used for Docker to regroup containers under the same project
+   - `APP_PORT`: the port where the app will be located on `localhost`
 
-   You have to use a `.env` file.
+   You have to use a `.env` file. You can find a `.env` example in the `.env.example` file.
 
 2. **Build image and run containers**
 
@@ -35,7 +36,7 @@ A simple URL shortener service built with **FastAPI** and **PostgreSQL**.
     ```bash
     make init
     ```
-    The API will run on `localhost:8000`
+    The API will run on `localhost`
 3. **Test the API**
     The API has three endpoints:
     - `[GET] /{slug}`
@@ -66,6 +67,12 @@ A simple URL shortener service built with **FastAPI** and **PostgreSQL**.
 
     3.3 **`[POST] /shorten`**
     ```
-    # curl -X 'POST' 'http://localhost:8000/shorten?url=https%3A%2F%2Fwww.twitch.tv%2Fzevent'                                          
-    {"shorten_url":"http://localhost:8000/jxz4Xv"}
+    # curl -X 'POST' \
+    'http://0.0.0.0:8000/shorten' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+    "url": "https://www.twitch.tv/zevent"
+    }'
+    {"shorten_url":"http://localhost:8000/FGKGfZ"}
     ```

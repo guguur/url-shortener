@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from psycopg2.extensions import cursor
-from pydantic import HttpUrl, ValidationError
+from pydantic import ValidationError
 
 from app.backend.env import APP_CONFIG
 from app.database.loaddb import load_db
@@ -46,8 +46,6 @@ def redirect_to_url(slug: str, db_cursor: DB_Cursor):
     ----------
     slug : str
         The slug.
-    db_cursor : DB_Cursor
-        The database cursor.
 
     Raises
     ------
@@ -80,8 +78,6 @@ def get_url_stats(slug: str, db_cursor: DB_Cursor):
     ----------
     slug : str
         The slug.
-    db_cursor : DB_Cursor
-        The database cursor.
 
     Raises
     ------
@@ -103,15 +99,13 @@ def get_url_stats(slug: str, db_cursor: DB_Cursor):
 
 
 @app.post("/shorten", response_model=ShortenUrlResponse)
-def shorten_url(url: HttpUrl, db_cursor: DB_Cursor):
+def shorten_url(url: Url, db_cursor: DB_Cursor):
     """Shorten the URL.
 
     Parameters
     ----------
-    url_data : HttpUrl
+    url : Url
         The URL to shorten.
-    db_cursor : DB_Cursor
-        The database cursor.
 
     Raises
     ------
@@ -123,14 +117,10 @@ def shorten_url(url: HttpUrl, db_cursor: DB_Cursor):
     ShortenUrlResponse
         The shortened URL.
     """
-    try:
-        url_data = Url(url=url)
-    except ValidationError:
-        raise HTTPException(status_code=404, detail="Invalid URL") from None
-    slug_data = get_slug_from_original_url(url_data, db_cursor)
+    slug_data = get_slug_from_original_url(url, db_cursor)
     if not slug_data:
         slug_data = generate_slug(db_cursor)
-        create_url(url_data, slug_data, db_cursor)
+        create_url(url, slug_data, db_cursor)
     return ShortenUrlResponse(
         shorten_url=f"{APP_CONFIG.HOST}:{APP_CONFIG.PORT}/{slug_data.slug}",
     )

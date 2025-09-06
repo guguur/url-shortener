@@ -24,7 +24,10 @@ class Url(BaseModel):
         input_domain = parsed_url.netloc.lower()
 
         # Get our domain from config
-        our_parsed = urlparse(APP_CONFIG.HOST)
+        our_parsed = urlparse(
+            APP_CONFIG.HOST
+            + (":" + str(APP_CONFIG.PORT) if APP_CONFIG.PORT else "")
+        )
         our_domain = our_parsed.netloc.lower()
 
         if input_domain == our_domain:
