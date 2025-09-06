@@ -31,7 +31,7 @@ class Url(BaseModel):
         our_domain = our_parsed.netloc.lower()
 
         if input_domain == our_domain:
-            raise ValueError("Cannot shorten URLs from your own domain")
+            raise ValueError("Cannot shorten URLs from our own domain")
 
         return v
 
