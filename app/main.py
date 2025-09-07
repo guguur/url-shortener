@@ -62,12 +62,11 @@ def redirect_to_url(slug: str, db_cursor: DB_Cursor):
     except ValidationError:
         raise HTTPException(status_code=404, detail="Invalid URL") from None
     redirect_url = get_url(slug_data, db_cursor)
-    update_url_click_count(slug_data, db_cursor)
 
     if redirect_url:
+        update_url_click_count(slug_data, db_cursor)
         return RedirectResponse(redirect_url)
-    else:
-        raise HTTPException(status_code=404, detail="Invalid URL")
+    raise HTTPException(status_code=404, detail="Invalid URL")
 
 
 @app.get("/stats/{slug}", response_model=int)
